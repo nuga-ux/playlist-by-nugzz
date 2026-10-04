@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playlist Music - nugzz</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1e1e24, #2a2a36);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .player-container {
+      background: #141419;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      color: #00d26a;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      color: #a0a0a0;
+      margin-top: 4px;
+    }
+
+    .now-playing {
+      background: #22222b;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .now-playing .title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 10px;
+      outline: none;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .controls button {
+      background: #2a2a36;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+
+    .controls button:hover {
+      background: #00d26a;
+      color: #000;
+    }
+
+    .playlist-title {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: #a0a0a0;
+      border-bottom: 1px solid #2a2a36;
+      padding-bottom: 6px;
+    }
+
+    .playlist {
+      list-style: none;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .playlist li {
+      padding: 12px;
+      background: #1c1c24;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .playlist li:hover {
+      background: #2a2a36;
+    }
+
+    .playlist li.active {
+      background: #00d26a;
+      color: #000000;
+      font-weight: bold;
+    }
+
+    /* Scrollbar Styling */
+    .playlist::-webkit-scrollbar {
+      width: 6px;
+    }
+    .playlist::-webkit-scrollbar-thumb {
+      background: #2a2a36;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="player-container">
+    <div class="header">
+      <h1>Music Player</h1>
+      <p>playlist by: <strong>nugzz</strong></p>
+    </div>
+
+    <div class="now-playing">
+      <div class="title" id="current-title">Pilih Lagu</div>
+      <audio id="audio-player" controls></audio>
+    </div>
+
+    <div class="controls">
+      <button onclick="prevTrack()">&laquo; Prev</button>
+      <button onclick="nextTrack()">Next &raquo;</button>
+    </div>
+
+    <div class="playlist-title">Daftar Lagu</div>
+    <ul class="playlist" id="playlist"></ul>
+  </div>
+
+  <script>
+    const songs = [
+      { title: "Tinky Winky full album", src: "https://files.catbox.moe/zskwa1.mp3" },
+      { title: "Sambutlah", src: "https://files.catbox.moe/pgijz3.mp3" },
+      { title: "Bertaruh Pada Api", src: "https://files.catbox.moe/rllra6.mp3" },
+      { title: "Metafora Berpelukan", src: "https://files.catbox.moe/v3ebyu.mp3" },
+      { title: "Lautan Bunga Berwarna Terang", src: "https://files.catbox.moe/1x27ee.mp3" },
+      { title: "Disarankan Di Bandung", src: "https://files.catbox.moe/djolg6.mp3" },
+      { title: "Lagu Selepas Hujan", src: "https://files.catbox.moe/p1495a.mp3" },
+      { title: "Pop Kinetik", src: "https://files.catbox.moe/0v0mn4.mp3" }
+    ];
+
+    let currentTrackIndex = 0;
+    const audioPlayer = document.getElementById("audio-player");
+    const currentTitle = document.getElementById("current-title");
+    const playlistElement = document.getElementById("playlist");
+
+    function renderPlaylist() {
+      playlistElement.innerHTML = "";
+      songs.forEach((song, index) => {
+        const li = document.createElement("li");
+        li.textContent = `${index + 1}. ${song.title}`;
+        if (index === currentTrackIndex) {
+          li.classList.add("active");
+        }
+        li.addEventListener("click", () => loadTrack(index, true));
+        playlistElement.appendChild(li);
+      });
+    }
+
+    function loadTrack(index, playImmediately = false) {
+      currentTrackIndex = index;
+      audioPlayer.src = songs[index].src;
+      currentTitle.textContent = songs[index].title;
+      renderPlaylist();
+
+      if (playImmediately) {
+        audioPlayer.play();
+      }
+    }
+
+    function nextTrack() {
+      currentTrackIndex = (currentTrackIndex + 1) % songs.length;
+      loadTrack(currentTrackIndex, true);
+    }
+
+    function prevTrack() {
+      currentTrackIndex = (currentTrackIndex - 1 + songs.length) % songs.length;
+      loadTrack(currentTrackIndex, true);
+    }
+
+    // Otomatis putar lagu berikutnya ketika lagu selesai
+    audioPlayer.addEventListener("ended", nextTrack);
+
+    // Inisialisasi awal
+    loadTrack(0, false);
+  </script>
+
+</body>
+</html>
